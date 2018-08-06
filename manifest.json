@@ -1,0 +1,23 @@
+{
+    "author": "Rafael Prenholato <rprenhol@gmail.com>",
+    "description": "Simple Vimeo link capture from embeded pages.",
+    "manifest_version": 2,
+    "name": "GetLink",
+    "homepage_url": "https://github.com/rprenhol/getlink",
+    "version": "1.0",
+    "icons": {
+        "48": "icon/48.png",
+        "92": "icon/92.png"
+    },
+
+    "permissions": [
+        "tabs","activeTab"
+    ],
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["getlink.js"]
+        }
+    ]
+}

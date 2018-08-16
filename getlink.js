@@ -13,19 +13,18 @@
 var targetNode = document.body;
 
 // Options for the observer (which mutations to observe)
-var config = { attributes: false, childList: true, subtree: true };
+var config = { attributes: true, childList: true, subtree: true };
 
 // Callback function to execute when mutations are observed
 var callback = function(records) {
   //searchIframes();
-  var elParents = [];
+  var elChilds = [];
   for(var mutation of records) {
-    //console.log(mutation.target.hasChildNodes());
     if(mutation.target.hasChildNodes()) {
-      elParents.push(mutation);
+      elChilds.push(mutation);
     }
   }
-  searchIframes(elParents);
+  searchIframes(elChilds);
 };
 
 // Create an observer instance linked to the callback function
@@ -38,22 +37,50 @@ observer.observe(targetNode, config);
 // observer.disconnect();
 
 var videos = [];
-function searchIframes(elParents) {
+/**
+ * Busca por iframes em childs adicionadas dinamicamente.
+ * 
+ * @param  {Array} elChilds
+ */
+function searchIframes(elChilds) {
+
   var iFrames = [];
-  for(var elParent of elParents) {
-    for(var item of elParent.target.getElementsByTagName('iframe')) {
+  for(var elChild of elChilds) {
+    for(var item of elChild.target.getElementsByTagName('iframe')) {
       if(iFrames.indexOf(item) === -1) iFrames.push(item);
     }
   }
 
+  getVideos(iFrames,'vimeo');
+}
+
+/**
+ * Identifica iframes que possuem o padrão desejado.
+ * Tendo identificado, o mesmo é adicionado a um Array (videos[]) exclusivo de
+ * elementos já processados.
+ * 
+ * @param  {Array} iFrames
+ * @param  {string} pattern
+ */
+function getVideos(iFrames, pattern) {
   for(var item of iFrames) {
-    if(item.getAttribute('src').includes('vimeo')) {
+    if(item.getAttribute('src').includes(pattern)) {
+      // Possui o padrão (pattern)
       if(videos.indexOf(item) === -1) {
-        videos.push(item);
+        // Ainda não foi processado
+        videos.push(item); // Adiciona ao Array
         adicionaEiqueta(item);
       }
     }
   }
+}
+
+window.onload = function() {
+  /**
+   * Busca por iframes após o evento 'onload'
+   * passa os elementos para getVideos
+   */
+  getVideos(document.getElementsByTagName('iframe'), 'vimeo');
 }
 
 function adicionaEiqueta(item) {
@@ -61,7 +88,6 @@ function adicionaEiqueta(item) {
   var linkId = link.split('/').pop();
 
   if(document.getElementById(linkId)) {
-    console.log(linkId + ' já existe!');
     return false;
   }
 
@@ -70,9 +96,11 @@ function adicionaEiqueta(item) {
   el.setAttribute('id','iframe-' + linkId);
 
   var elLink = document.createElement('span'); // Link
+  var elLinkTxt = document.createTextNode(link);
   var elEspaco = document.createTextNode(' ');
   var elBtn = document.createElement('img'); // Botão de cópia
-  elLink.innerHTML = link;
+  
+  elLink.appendChild(elLinkTxt);
 
   //elBtn.innerHTML = '';
   elBtn.setAttribute('src',browser.extension.getURL('icon/copy.svg'));
@@ -100,7 +128,12 @@ function adicionaEiqueta(item) {
   el.appendChild(elBtn);
   item.parentElement.appendChild(el);
 }
-
+/**
+ * Manipulação de texto a ser copiado para a área de transferência
+ * 
+ * @param  {object} el
+ * @param  {window} win
+ */
 function selectElementText(el, win) {
   win = win || window;
   var doc = win.document, sel, range;

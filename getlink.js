@@ -103,12 +103,17 @@ function adicionaEiqueta(item) {
   elLink.appendChild(elLinkTxt);
 
   //elBtn.innerHTML = '';
-  elBtn.setAttribute('src',browser.extension.getURL('icon/copy.svg'));
+  var b = (chrome)? chrome : browser;
+  elBtn.setAttribute('src',b.extension.getURL('icon/copy.png'));
   elBtn.setAttribute('alt','Copiar');
   elBtn.addEventListener('click', function() {
     selectElementText(elLink);
     document.execCommand('copy');
   });
+  elBtn.style.height = '16px';
+  elBtn.style.margin = '2px';
+  elBtn.setAttribute('title','Copiar');
+  elBtn.style.cursor = 'pointer';
 
   // Definindo estilo
   el.style.position = 'absolute';
@@ -118,10 +123,6 @@ function adicionaEiqueta(item) {
   el.style.top = item.offsetTop;
   el.style.backgroundColor = 'rgba(255,255,255,0.8)';
 
-  elBtn.style.height = '16px';
-  elBtn.style.margin = '2px';
-  elBtn.setAttribute('title','Copiar');
-  elBtn.style.cursor = 'pointer';
   // Adicionando elementos
   el.appendChild(elLink);
   el.appendChild(elEspaco);

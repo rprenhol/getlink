@@ -102,6 +102,7 @@ function adicionaEiqueta(item) {
   
   elLink.appendChild(elLinkTxt);
   elLink.style.verticalAlign = 'super';
+  elLink.style.display = 'inline-block';
 
   //elBtn.innerHTML = '';
   var b = (chrome)? chrome : browser;
@@ -115,6 +116,7 @@ function adicionaEiqueta(item) {
   elBtn.style.margin = '2px';
   elBtn.setAttribute('title','Copiar');
   elBtn.style.cursor = 'pointer';
+  elBtn.style.display = 'inline-block';
 
   // Definindo estilo
   el.style.position = 'absolute';
@@ -123,6 +125,8 @@ function adicionaEiqueta(item) {
   el.style.left = item.offsetLeft;
   el.style.top = item.offsetTop;
   el.style.backgroundColor = 'rgba(255,255,255,0.8)';
+  el.style.whiteSpace = 'nowrap';
+  el.style.overflow = 'hidden';
 
   // Adicionando elementos
   el.appendChild(elLink);

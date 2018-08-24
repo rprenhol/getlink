@@ -101,10 +101,11 @@ function adicionaEiqueta(item) {
   var elBtn = document.createElement('img'); // Botão de cópia
   
   elLink.appendChild(elLinkTxt);
+  elLink.style.verticalAlign = 'super';
 
   //elBtn.innerHTML = '';
   var b = (chrome)? chrome : browser;
-  elBtn.setAttribute('src',b.extension.getURL('icon/copy.png'));
+  elBtn.setAttribute('src',b.extension.getURL('icon/copy.svg'));
   elBtn.setAttribute('alt','Copiar');
   elBtn.addEventListener('click', function() {
     selectElementText(elLink);

@@ -75,13 +75,13 @@ function getVideos(iFrames, pattern) {
   }
 }
 
-window.onload = function() {
+window.addEventListener('load', function() {
   /**
    * Busca por iframes após o evento 'onload'
    * passa os elementos para getVideos
    */
   getVideos(document.getElementsByTagName('iframe'), 'vimeo');
-}
+});
 
 function adicionaEiqueta(item) {
   var link = item.src;

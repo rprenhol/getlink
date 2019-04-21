@@ -17,6 +17,9 @@
     "web_accessible_resources": [
         "icon/*"
     ],
+    "options_ui": {
+        "page": "options.html"
+    },
 
     "content_scripts": [
         {

@@ -1,8 +1,37 @@
-<h2>Contributions</h2>
-<p>Feel free to contribute with any donation</p>
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-    <input type="hidden" name="cmd" value="_s-xclick" />
-    <input type="hidden" name="hosted_button_id" value="7PSHTCR3L4TU8" />
-    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-    <img alt="" border="0" src="https://www.paypal.com/en_BR/i/scr/pixel.gif" width="1" height="1" />
-</form>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Getlink - Options</title>
+        <script src="js/options.js"></script>
+        <style>
+            section {
+                padding: 16px 0;
+                border-top: 1px solid #999;
+            }
+            p { margin-top: 0; }
+        </style>
+    </head>
+    <body>
+        <div class="title">
+            <h2>Options</h2>
+        </div>
+        <form>
+            <section>
+                <p><strong>Url Format</strong></p>
+                <div>
+                    <input type="radio" id="simples" name="formato" value="simples" checked>
+                    <label for="simples">Simple</label>
+                </div>
+                <div>
+                    <input type="radio" id="completa" name="formato" value="completa" checked>
+                    <label for="completa">Complete</label>
+                </div>
+            </section>
+            <section>
+                <div>
+                    <button type="submit">Save</button> <label id="status"></label>
+                </div>
+            </section>
+        </form>
+    </body>
+</html>

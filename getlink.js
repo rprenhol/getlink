@@ -11,20 +11,24 @@
 
 
 var targetNode = document.body;
+var formatoURL = 'simples';
+chrome.storage.local.get('formatoURL', result => {
+    formatoURL = result.formatoURL;
+});
 
 // Options for the observer (which mutations to observe)
 var config = { attributes: true, childList: true, subtree: true };
 
 // Callback function to execute when mutations are observed
 var callback = function(records) {
-  //searchIframes();
-  var elChilds = [];
-  for(var mutation of records) {
-    if(mutation.target.hasChildNodes()) {
-      elChilds.push(mutation);
+    //searchIframes();
+    var elChilds = [];
+    for(var mutation of records) {
+        if(mutation.target.hasChildNodes()) {
+            elChilds.push(mutation);
+        }
     }
-  }
-  searchIframes(elChilds);
+    searchIframes(elChilds);
 };
 
 // Create an observer instance linked to the callback function
@@ -44,14 +48,14 @@ var videos = [];
  */
 function searchIframes(elChilds) {
 
-  var iFrames = [];
-  for(var elChild of elChilds) {
-    for(var item of elChild.target.getElementsByTagName('iframe')) {
-      if(iFrames.indexOf(item) === -1) iFrames.push(item);
+    var iFrames = [];
+    for(var elChild of elChilds) {
+        for(var item of elChild.target.getElementsByTagName('iframe')) {
+            if(iFrames.indexOf(item) === -1) iFrames.push(item);
+        }
     }
-  }
 
-  getVideos(iFrames,'vimeo');
+    getVideos(iFrames,'vimeo');
 }
 
 /**
@@ -63,76 +67,81 @@ function searchIframes(elChilds) {
  * @param  {string} pattern
  */
 function getVideos(iFrames, pattern) {
-  for(var item of iFrames) {
-    if(item.getAttribute('src').includes(pattern)) {
-      // Possui o padrão (pattern)
-      if(videos.indexOf(item) === -1) {
-        // Ainda não foi processado
-        videos.push(item); // Adiciona ao Array
-        adicionaEiqueta(item);
-      }
+    for(var item of iFrames) {
+        if(item.getAttribute('src').includes(pattern)) {
+            // Possui o padrão (pattern)
+            if(videos.indexOf(item) === -1) {
+                // Ainda não foi processado
+                videos.push(item); // Adiciona ao Array
+                adicionaEiqueta(item);
+            }
+        }
     }
-  }
 }
 
 window.addEventListener('load', function() {
-  /**
-   * Busca por iframes após o evento 'onload'
-   * passa os elementos para getVideos
-   */
-  getVideos(document.getElementsByTagName('iframe'), 'vimeo');
+    /**
+     * Busca por iframes após o evento 'onload'
+     * passa os elementos para getVideos
+     */
+    getVideos(document.getElementsByTagName('iframe'), 'vimeo');
 });
 
 function adicionaEiqueta(item) {
-  var link = item.src;
-  var linkId = link.split('/').pop();
+    var link = item.src;
+    if(formatoURL == 'simples') {
+        link = link.split('?')[0];
+        link = link.replace('player.','');
+        link = link.replace('/video','');
+    }
+    var linkId = link.split('/').pop();
 
-  if(document.getElementById(linkId)) {
-    return false;
-  }
+    if(document.getElementById(linkId)) {
+        return false;
+    }
 
-  // Novos elementos
-  var el = document.createElement('div'); // Container
-  el.setAttribute('id','iframe-' + linkId);
+    // Novos elementos
+    var el = document.createElement('div'); // Container
+    el.setAttribute('id','iframe-' + linkId);
 
-  var elLink = document.createElement('span'); // Link
-  var elLinkTxt = document.createTextNode(link);
-  var elEspaco = document.createTextNode(' ');
-  var elBtn = document.createElement('img'); // Botão de cópia
-  
-  elLink.appendChild(elLinkTxt);
-  elLink.style.verticalAlign = 'super';
-  elLink.style.display = 'inline-block';
+    var elLink = document.createElement('span'); // Link
+    var elLinkTxt = document.createTextNode(link);
+    var elEspaco = document.createTextNode(' ');
+    var elBtn = document.createElement('img'); // Botão de cópia
 
-  //elBtn.innerHTML = '';
-  var b = (chrome)? chrome : browser;
-  elBtn.setAttribute('src',b.extension.getURL('icon/copy.svg'));
-  elBtn.setAttribute('alt','Copiar');
-  elBtn.addEventListener('click', function() {
-    selectElementText(elLink);
-    document.execCommand('copy');
-  });
-  elBtn.style.height = '16px';
-  elBtn.style.margin = '2px';
-  elBtn.setAttribute('title','Copiar');
-  elBtn.style.cursor = 'pointer';
-  elBtn.style.display = 'inline-block';
+    elLink.appendChild(elLinkTxt);
+    elLink.style.verticalAlign = 'super';
+    elLink.style.display = 'inline-block';
 
-  // Definindo estilo
-  el.style.position = 'absolute';
-  el.style.fontSize = '10px';
-  el.style.zIndex = 1000;
-  el.style.left = item.offsetLeft;
-  el.style.top = item.offsetTop;
-  el.style.backgroundColor = 'rgba(255,255,255,0.8)';
-  el.style.whiteSpace = 'nowrap';
-  el.style.overflow = 'hidden';
+    //elBtn.innerHTML = '';
+    var b = (chrome)? chrome : browser;
+    elBtn.setAttribute('src',b.extension.getURL('icon/copy.svg'));
+    elBtn.setAttribute('alt','Copiar');
+    elBtn.addEventListener('click', function() {
+        selectElementText(elLink);
+        document.execCommand('copy');
+    });
+    elBtn.style.height = '16px';
+    elBtn.style.margin = '2px';
+    elBtn.setAttribute('title','Copiar');
+    elBtn.style.cursor = 'pointer';
+    elBtn.style.display = 'inline-block';
 
-  // Adicionando elementos
-  el.appendChild(elLink);
-  el.appendChild(elEspaco);
-  el.appendChild(elBtn);
-  item.parentElement.appendChild(el);
+    // Definindo estilo
+    el.style.position = 'absolute';
+    el.style.fontSize = '10px';
+    el.style.zIndex = 1000;
+    el.style.left = item.offsetLeft;
+    el.style.top = item.offsetTop;
+    el.style.backgroundColor = 'rgba(255,255,255,0.8)';
+    el.style.whiteSpace = 'nowrap';
+    el.style.overflow = 'hidden';
+
+    // Adicionando elementos
+    el.appendChild(elLink);
+    el.appendChild(elEspaco);
+    el.appendChild(elBtn);
+    item.parentElement.appendChild(el);
 }
 /**
  * Manipulação de texto a ser copiado para a área de transferência
@@ -141,18 +150,18 @@ function adicionaEiqueta(item) {
  * @param  {window} win
  */
 function selectElementText(el, win) {
-  win = win || window;
-  var doc = win.document, sel, range;
-  if (win.getSelection && doc.createRange) {
-    sel = win.getSelection();
-    range = doc.createRange();
-    range.selectNodeContents(el);
-    sel.removeAllRanges();
-    sel.addRange(range);
-  } else if (doc.body.createTextRange) {
-    range = doc.body.createTextRange();
-    range.moveToElementText(el);
-    range.select();
-  }
+    win = win || window;
+    var doc = win.document, sel, range;
+    if (win.getSelection && doc.createRange) {
+        sel = win.getSelection();
+        range = doc.createRange();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (doc.body.createTextRange) {
+        range = doc.body.createTextRange();
+        range.moveToElementText(el);
+        range.select();
+    }
 }
 

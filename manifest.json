@@ -11,7 +11,7 @@
     },
 
     "permissions": [
-        "tabs", "activeTab", "storage"
+        "tabs", "activeTab", "storage", "menus"
     ],
 
     "web_accessible_resources": [
@@ -26,5 +26,13 @@
             "matches": ["<all_urls>"],
             "js": ["getlink.js"]
         }
-    ]
+    ],
+
+    "background": {
+        "scripts": [ "background.js" ]
+    },
+
+    "page_action": {
+        "default_popup": "popup.html"
+    }
 }

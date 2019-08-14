@@ -73,7 +73,7 @@ function getVideos(iFrames, pattern) {
             if(videos.indexOf(item) === -1) {
                 // Ainda não foi processado
                 videos.push(item); // Adiciona ao Array
-                adicionaEiqueta(item);
+                adicionaEtiquetas(item);
             }
         }
     }
@@ -87,7 +87,7 @@ window.addEventListener('load', function() {
     getVideos(document.getElementsByTagName('iframe'), 'vimeo');
 });
 
-function adicionaEiqueta(item) {
+function adicionaEtiquetas(item) {
     var link = item.src;
     if(formatoURL == 'simples') {
         link = link.split('?')[0];

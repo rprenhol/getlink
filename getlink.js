@@ -13,14 +13,16 @@
 var targetNode = document.body;
 var formatoURL = 'simples';
 chrome.storage.local.get('formatoURL', result => {
-    formatoURL = result.formatoURL;
+    formatoURL = result.formatoURL || formatoURL;
 });
+
+var videosList = new Array();
 
 // Options for the observer (which mutations to observe)
 var config = { attributes: true, childList: true, subtree: true };
 
 // Callback function to execute when mutations are observed
-var callback = function(records) {
+var callback = (records) => {
     //searchIframes();
     var elChilds = [];
     for(var mutation of records) {
@@ -41,12 +43,70 @@ observer.observe(targetNode, config);
 // observer.disconnect();
 
 var videos = [];
+var promisesList = [];
+var sR = null;
+
+/**
+ * Listening for popup requests
+ */
+browser.runtime.onMessage.addListener(
+    function(message, sender, sendResponse) {
+        sR = sendResponse;
+        switch(message.type) {
+            case "getLinks":
+                if(videosList.length) {
+                    sR(videosList || new Array());
+                } else {
+                    startToGet();
+                }
+                break;
+            default:
+                console.error("Unrecognised message: ", message);
+        }
+    }
+);
+
+
+/**
+ * Execute on window load
+ */
+window.onload = () => {
+    /**
+     * Busca por iframes após o evento 'onload'
+     * passa os elementos para getVideos
+     */
+    startToGet();
+    rePos();
+};
+
+/**
+ * Tags postion reval
+ */
+const rePos = () => {
+    var links = document.querySelectorAll('[id^="getlink-"]');
+    for(let link of links) {
+        let url = link.querySelector('span').innerText;
+        let sib = document.querySelector('iframe[src^="' + url + '"]');
+
+        let coord = sib.getBoundingClientRect();
+        link.style.top = (coord.top + document.body.scrollTop) + 'px';
+        link.style.left = (coord.left) + 'px';
+    }
+}
+
+/**
+ * Centralized function call
+ */
+const startToGet = () => {
+    getVideos(document.querySelectorAll('iframe'), 'player.vimeo.com/video','src');
+}
+
 /**
  * Busca por iframes em childs adicionadas dinamicamente.
  * 
  * @param  {Array} elChilds
  */
-function searchIframes(elChilds) {
+const searchIframes = elChilds => {
 
     var iFrames = [];
     for(var elChild of elChilds) {
@@ -55,7 +115,7 @@ function searchIframes(elChilds) {
         }
     }
 
-    getVideos(iFrames,'vimeo');
+    getVideos(iFrames,'player.vimeo.com/video', 'src');
 }
 
 /**
@@ -63,12 +123,13 @@ function searchIframes(elChilds) {
  * Tendo identificado, o mesmo é adicionado a um Array (videos[]) exclusivo de
  * elementos já processados.
  * 
- * @param  {Array} iFrames
+ * @param  {Array<Element>} elements
  * @param  {string} pattern
+ * @param  {string} attr
  */
-function getVideos(iFrames, pattern) {
-    for(var item of iFrames) {
-        if(item.getAttribute('src').includes(pattern)) {
+const getVideos = (elements, pattern, attr) => {
+    for(var item of elements) {
+        if(item.hasAttribute(attr) && item.getAttribute(attr).includes(pattern)) {
             // Possui o padrão (pattern)
             if(videos.indexOf(item) === -1) {
                 // Ainda não foi processado
@@ -77,23 +138,37 @@ function getVideos(iFrames, pattern) {
             }
         }
     }
+    // if(sR) {
+    //     Promise.all(promisesList).finnaly(() =>{
+    //         sR(videosList);
+    //     });
+    // }
 }
 
-window.addEventListener('load', function() {
-    /**
-     * Busca por iframes após o evento 'onload'
-     * passa os elementos para getVideos
-     */
-    getVideos(document.getElementsByTagName('iframe'), 'vimeo');
-});
-
-function adicionaEtiquetas(item) {
+/**
+ * 
+ * @param {object} item 
+ */
+const adicionaEtiquetas = item => {
     var link = item.src;
+    let video = {};
+    
     if(formatoURL == 'simples') {
         link = link.split('?')[0];
-        link = link.replace('player.','');
-        link = link.replace('/video','');
+        // link = link.replace('player.','');
+        // link = link.replace('/video','');
     }
+    
+    var player = new Vimeo.Player(item);
+    var p = player.getVideoTitle().then(title => { 
+        video.title = title;
+    }).finally(() => {
+        video.url = link
+        video.page = window.location.href;
+        videosList.push(video);
+    });
+    promisesList.push(p);
+
     var linkId = link.split('/').pop();
 
     if(document.getElementById(linkId)) {
@@ -102,7 +177,7 @@ function adicionaEtiquetas(item) {
 
     // Novos elementos
     var el = document.createElement('div'); // Container
-    el.setAttribute('id','iframe-' + linkId);
+    el.setAttribute('id','getlink-' + linkId);
 
     var elLink = document.createElement('span'); // Link
     var elLinkTxt = document.createTextNode(link);
@@ -110,7 +185,7 @@ function adicionaEtiquetas(item) {
     var elBtn = document.createElement('img'); // Botão de cópia
 
     elLink.appendChild(elLinkTxt);
-    elLink.style.verticalAlign = 'super';
+    elLink.style.verticalAlign = 'middle';
     elLink.style.display = 'inline-block';
 
     //elBtn.innerHTML = '';
@@ -127,21 +202,12 @@ function adicionaEtiquetas(item) {
     elBtn.style.cursor = 'pointer';
     elBtn.style.display = 'inline-block';
 
-    // Definindo estilo
-    el.style.position = 'absolute';
-    el.style.fontSize = '10px';
-    el.style.zIndex = 1000;
-    el.style.left = item.offsetLeft;
-    el.style.top = item.offsetTop;
-    el.style.backgroundColor = 'rgba(255,255,255,0.8)';
-    el.style.whiteSpace = 'nowrap';
-    el.style.overflow = 'hidden';
-
     // Adicionando elementos
     el.appendChild(elLink);
     el.appendChild(elEspaco);
     el.appendChild(elBtn);
     item.parentElement.appendChild(el);
+
 }
 /**
  * Manipulação de texto a ser copiado para a área de transferência
@@ -149,7 +215,7 @@ function adicionaEtiquetas(item) {
  * @param  {object} el
  * @param  {window} win
  */
-function selectElementText(el, win) {
+const selectElementText = (el, win) => {
     win = win || window;
     var doc = win.document, sel, range;
     if (win.getSelection && doc.createRange) {
@@ -164,4 +230,3 @@ function selectElementText(el, win) {
         range.select();
     }
 }
-

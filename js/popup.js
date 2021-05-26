@@ -1,6 +1,6 @@
 
 var videosList = new Array();
-
+const browser = (chrome) ? chrome : browser;
 /**
  * Query for link video on active tab
  */

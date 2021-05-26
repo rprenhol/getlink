@@ -9,7 +9,7 @@
  * @link https://github.com/rprenhol/getlink
  */
 
-
+const browser = (chrome) ? chrome : browser;
 var targetNode = document.body;
 var formatoURL = 'simples';
 chrome.storage.local.get('formatoURL', result => {

@@ -4,14 +4,14 @@
     "manifest_version": 2,
     "name": "GetLink",
     "homepage_url": "https://github.com/rprenhol/getlink",
-    "version": "2.0",
+    "version": "2.1",
     "icons": {
         "48": "icon/48.png",
         "92": "icon/92.png"
     },
 
     "permissions": [
-        "tabs", "activeTab", "storage", "menus", "clipboardWrite","https://player.vimeo.com/"
+        "tabs", "activeTab", "storage", "clipboardWrite"
     ],
 
     "web_accessible_resources": [

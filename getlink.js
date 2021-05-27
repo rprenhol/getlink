@@ -172,7 +172,7 @@ const adicionaEtiquetas = item => {
         ar.push(d);
 
         video.url = link
-        video.page = window.location.href;
+        video.page = document.title || window.location.href;
         Promise.all(ar).finally(() => {
             resolve();
         })

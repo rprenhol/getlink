@@ -60,13 +60,12 @@ const downloadM3U = () => {
         page = item.page;
     })
     console.log(txtContent)
-    var illegalRe = /[\/\?<>\\:\*\|"]/g;
-    var controlRe = /[\x00-\x1f\x80-\x9f]/g;
-    var reservedRe = /^\.+$/;
-    var replacement = '_';
-    page = page.replace(illegalRe,replacement).replace(controlRe,replacement).replace(reservedRe, replacement);
+    
     let data = new Date().toLocaleString('pt-br');
-    let filename = 'GetLink-' + page + '-' + data + '.m3u';
+    let filenameBegin = sanitiza('GetLink-' + page + '-')
+    let filenameEnd = sanitiza(data + '.m3u');
+    
+    let filename = filenameBegin.slice(0 , 255 - filenameEnd.length) + filenameEnd;
     console.log(filename);
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(txtContent));
     element.setAttribute('download', filename);
@@ -79,6 +78,19 @@ const downloadM3U = () => {
     document.body.removeChild(element);
   }
 
+  /**
+   * Sanitize string as a eligible filename
+   * @param {String} text 
+   * @param {char} replacement 
+   * @returns {String}
+   */
+const sanitiza = (text, replacement) => {
+    var illegalRe = /[\/\?<>\\:\*\|"]/g;
+    var controlRe = /[\x00-\x1f\x80-\x9f]/g;
+    var reservedRe = /^\.+$/;
+    var replacement = '_';
+    return text.replace(illegalRe,replacement).replace(controlRe,replacement).replace(reservedRe, replacement);
+}
 /**
  * Build links list
  */

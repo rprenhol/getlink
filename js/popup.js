@@ -20,6 +20,7 @@ browser.tabs.query({active: true, currentWindow: true}, function(tabs) {
  */
 window.onload = () => {
     var btnCopy = document.getElementById('copy');
+    var btnDown = document.getElementById('down');
     btnCopy.addEventListener('click', () => {
         // Clipboard API available?
         if (!navigator.clipboard) {
@@ -35,12 +36,48 @@ window.onload = () => {
         }
     });
 
+    btnDown.addEventListener('click', downloadM3U);
+
     var gettedLinks = document.getElementById('getted-links');
     if(!videosList.length) {
         gettedLinks.innerHTML = '<div>Empty list</div>'
     }
     // exibeListaDeLink()
 }
+
+const downloadM3U = () => {
+    if(!videosList.length) {
+        return false;
+    }
+    var element = document.createElement('a');
+    let txtContent = '#EXTM3U\n';
+    let page = '';
+    videosList.forEach(item => {
+        let inf = '#EXTINF:';
+        inf += item.duration + ',' + item.title + '\n';
+        inf += item.url + '\n';
+        txtContent += inf;
+        page = item.page;
+    })
+    console.log(txtContent)
+    var illegalRe = /[\/\?<>\\:\*\|"]/g;
+    var controlRe = /[\x00-\x1f\x80-\x9f]/g;
+    var reservedRe = /^\.+$/;
+    var replacement = '_';
+    page = page.replace(illegalRe,replacement).replace(controlRe,replacement).replace(reservedRe, replacement);
+    let data = new Date().toLocaleString('pt-br');
+    let filename = 'GetLink-' + page + '-' + data + '.m3u';
+    console.log(filename);
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(txtContent));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
+  }
 
 /**
  * Build links list

@@ -158,16 +158,28 @@ const adicionaEtiquetas = item => {
         // link = link.replace('player.','');
         // link = link.replace('/video','');
     }
-    
-    var player = new Vimeo.Player(item);
-    var p = player.getVideoTitle().then(title => { 
-        video.title = title;
-    }).finally(() => {
+
+    new Promise((resolve,reject) => {
+        let ar = new Array();
+        var player = new Vimeo.Player(item);
+        var t = player.getVideoTitle().then(title => { 
+            video.title = title;
+        })
+        ar.push(t);
+        var d = player.getDuration(item).then(duration => {
+            video.duration = duration;
+        })
+        ar.push(d);
+
         video.url = link
         video.page = window.location.href;
+        Promise.all(ar).finally(() => {
+            resolve();
+        })
+        
+    }).then(() => {
         videosList.push(video);
     });
-    promisesList.push(p);
 
     var linkId = link.split('/').pop();
 

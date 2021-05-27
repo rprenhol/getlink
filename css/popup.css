@@ -9,7 +9,7 @@
 
 body {
     max-height: 400px;
-    max-width: 400px;
+    max-width: 450px;
     min-width: 200px;
     overflow: hidden;
     background-color: #333;
@@ -69,16 +69,23 @@ body {
     width: 100%;
     /* padding-top: 10px; */
     background-color: #b3b3b3;
+    box-shadow: 0px 0 10px #333;
     text-align: center;
+    display: flex;
 }
 
-.nav button {
+.nav > * {
+    flex: auto;
     height: 25px;
-    width: 100%;
+    width: 49%;
     border: none;
     /* background-color: unset; */
-    box-shadow: 0px 0 10px #333;
     /* padding: 3px; */
+}
+
+.nav > span {
+    width: .5px;
+    background-color: #ccc;
 }
 
 .nav button:active {
